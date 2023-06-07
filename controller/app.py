@@ -3,6 +3,11 @@ import paho.mqtt.client as mqtt
 
 app = Flask(__name__)
 
+temperature_suspended = False
+weight_suspended = False
+led_suspended = False
+heater_suspended = False
+
 temperature_data = "NO DATA"
 weight_data = "NO DATA"
 led_data = "NO DATA"
@@ -44,20 +49,65 @@ def on_message(client, userdata, msg):
 def index():
     return render_template('index.html')
 
-@app.route('/temperature', methods=['GET'])
+@app.route('/temperature', methods=['GET', 'POST'])
 def get_temperature():
+    global temperature_suspended
+
+    item = request.form.get('item')
+
+    if request.method == 'POST':
+        if temperature_suspended:
+            temperature_suspended = False
+            mqtt_client.publish("suspend", item + " UNSUSPEND")
+        else:
+            temperature_suspended = True
+            mqtt_client.publish("suspend", item + " SUSPEND")
+
     return temperature_data
 
-@app.route('/weight', methods=['GET'])
+@app.route('/weight', methods=['GET', 'POST'])
 def get_weight():
+    global weight_suspended
+
+    item = request.form.get('item')
+
+    if request.method == 'POST':
+        if weight_suspended:
+            weight_suspended = False
+            mqtt_client.publish("suspend", item + " SUSPEND")
+        else:
+            weight_suspended = True
+            mqtt_client.publish("suspend", item + " UNSUSPEND")
     return weight_data
 
-@app.route('/led', methods=['GET'])
+@app.route('/led', methods=['GET', 'POST'])
 def get_led():
+    global led_suspended
+
+    item = request.form.get('item')
+
+    if request.method == 'POST':
+        if led_suspended:
+            led_suspended = False
+            mqtt_client.publish("suspend", item + " SUSPEND")
+        else:
+            led_suspended = True
+            mqtt_client.publish("suspend", item + " UNSUSPEND")
     return led_data
 
-@app.route('/heater', methods=['GET'])
+@app.route('/heater', methods=['GET', 'POST'])
 def get_heater():
+    global heater_suspended
+
+    item = request.form.get('item')
+
+    if request.method == 'POST':
+        if heater_suspended:
+            heater_suspended = False
+            mqtt_client.publish("suspend", item + " SUSPEND")
+        else:
+            heater_suspended = True
+            mqtt_client.publish("suspend", item + " UNSUSPEND")
     return heater_data
 
 @app.route('/topics', methods=['POST'])

@@ -1,6 +1,6 @@
 import socket
 import threading
-import subprocess
+
 stop_flag = threading.Event()
 
 def handle_client(ip_addr, port, type):
