@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Dashboard</title>
+    <style>
+      @import url("https://fonts.apple.com/css?family=SF+Pro+Display");
+
+      body {
+        background: #202020;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+        font-family: "SF Pro Display", sans-serif;
+      }
+
+      .grid-container {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-gap: 30px;
+        padding: 30px;
+      }
+
+      .grid-item {
+        border: 0.5px solid rgb(123, 123, 123);
+        padding-bottom: 20px;
+        color: rgb(255, 255, 255);
+        background-color: #3e3e3e;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.3);
+
+        transition: background-color 0.3s ease, transform 0.3s ease,
+          box-shadow 0.3s ease;
+      }
+
+      .grid-item:hover {
+        background-color: #4e4e4e;
+        box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.4);
+        transform: scale(1.03);
+      }
+
+      #topic {
+        padding: 10px;
+        font-size: 16px;
+        border-radius: 5px;
+        background-color: #3e3e3e;
+        color: white;
+        border: 0.2px solid rgb(123, 123, 123);
+        outline: none;
+        margin-bottom: 20px;
+        margin: 0 auto;
+        display: block;
+        width: fit-content;
+
+        box-shadow: 0px 0px 8px 0px rgba(0, 0, 0, 0.3);
+        border-radius: 8px;
+
+        appearance: none;
+
+        transition: background-color 0.3s ease, transform 0.3s ease,
+          box-shadow 0.3s ease;
+      }
+
+      #topic:hover {
+        background-color: #4e4e4e;
+        box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.4);
+        transform: scale(1.05);
+      }
+
+      @keyframes zoom {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      .zoom-effect {
+        animation: zoom 0.5s linear;
+      }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  </head>
+  <body>
+    <div class="grid-container">
+      <div class="grid-item">
+        <h1>WEIGHT</h1>
+        <div id="output_weight" class="weight_output"></div>
+      </div>
+      <div class="grid-item">
+        <h1>TEMPERATURE</h1>
+        <div id="output_temperature"></div>
+      </div>
+      <div class="grid-item">
+        <h1>LED</h1>
+        <div id="output_led"></div>
+      </div>
+      <div class="grid-item">
+        <h1>HEATER</h1>
+        <div id="output_heater"></div>
+      </div>
+    </div>
+
+    <select id="topic">
+      <option value="C1">COASTER 1</option>
+      <option value="C2">COASTER 2</option>
+    </select>
+
+    <script type="text/javascript">
+      function updateTemperatureOutput() {
+        var outputElement = $("#output_temperature");
+
+        outputElement.removeClass("zoom-effect");
+
+        $.ajax({
+          url: "/temperature",
+          success: function (data) {
+            outputElement.text(data);
+
+            outputElement.addClass("zoom-effect");
+          },
+        });
+      }
+
+      function updateWeightOutput() {
+        var outputElement = $("#output_weight");
+
+        outputElement.removeClass("zoom-effect");
+
+        $.ajax({
+          url: "/weight",
+          success: function (data) {
+            outputElement.text(data);
+
+            outputElement.addClass("zoom-effect");
+          },
+        });
+      }
+
+      function updateLedOutput() {
+        var outputElement = $("#output_led");
+
+        outputElement.removeClass("zoom-effect");
+
+        $.ajax({
+          url: "/led",
+          success: function (data) {
+            outputElement.text(data);
+
+            outputElement.addClass("zoom-effect");
+          },
+        });
+      }
+
+      function updateHeaterOutput() {
+        var outputElement = $("#output_heater");
+
+        outputElement.removeClass("zoom-effect");
+
+        $.ajax({
+          url: "/heater",
+          success: function (data) {
+            outputElement.text(data);
+
+            outputElement.addClass("zoom-effect");
+          },
+        });
+      }
+
+      function chooseCoaster(selectedValue) {
+        $.ajax({
+          url: "/topics",
+          method: "POST",
+          data: { selectedValue: selectedValue },
+          success: function (response) {
+            console.log("Request sent successfully!");
+          },
+          error: function (xhr, status, error) {
+            console.log("Error sending request:", error);
+          },
+        });
+      }
+
+      $(document).ready(function () {
+        updateTemperatureOutput();
+        updateWeightOutput();
+        updateLedOutput();
+        updateHeaterOutput();
+        setInterval(updateTemperatureOutput, 2000);
+        setInterval(updateWeightOutput, 2000);
+        setInterval(updateLedOutput, 2000);
+        setInterval(updateHeaterOutput, 2000);
+
+        $("#topic").on("change", function () {
+          var selectedValue = $(this).val();
+          chooseCoaster(selectedValue);
+        });
+      });
+    </script>
+  </body>
+</html>
